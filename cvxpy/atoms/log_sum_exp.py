@@ -25,12 +25,15 @@ from cvxpy.atoms.affine.sum_entries import sum_entries
 from cvxpy.constraints.exponential import ExpCone
 import numpy as np
 
+import theano.tensor as T
+
 class log_sum_exp(Atom):
     """:math:`\log\sum_i e^{x_i}`
 
     """
     def __init__(self, x):
         super(log_sum_exp, self).__init__(x)
+        self.sym = T.log(T.sum(T.exp(x.sym)))
 
     # Evaluates e^x elementwise, sums, and takes the log.
     @Atom.numpy_numeric

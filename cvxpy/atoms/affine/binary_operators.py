@@ -29,6 +29,8 @@ import numpy as np
 if sys.version_info >= (3, 0):
     from functools import reduce
 
+import theano.tensor as T
+
 class BinaryOperator(AffAtom):
     """
     Base class for expressions involving binary operators.
@@ -59,6 +61,10 @@ class BinaryOperator(AffAtom):
 class MulExpression(BinaryOperator):
     OP_NAME = "*"
     OP_FUNC = op.mul
+
+    def __init__(self, lh_exp, rh_exp):
+        super(MulExpression, self).__init__(lh_exp, rh_exp)
+        self.sym = T.dot(lh_exp.sym, rh_exp.sym)
 
     @staticmethod
     def graph_implementation(arg_objs, size, data=None):

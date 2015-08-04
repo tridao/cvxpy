@@ -43,6 +43,10 @@ class NegExpression(UnaryOperator):
     OP_NAME = "-"
     OP_FUNC = op.neg
 
+    def __init__(self, expr):
+        super(NegExpression, self).__init__(expr)
+        self.sym = -expr.sym
+
     @staticmethod
     def graph_implementation(arg_objs, size, data=None):
         """Negate the affine objective.

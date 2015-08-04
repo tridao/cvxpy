@@ -22,8 +22,15 @@ import cvxpy.lin_ops.lin_utils as lu
 from cvxpy.atoms.affine.affine_atom import AffAtom
 import numpy as np
 
+import theano.tensor as T
+
 class vstack(AffAtom):
     """ Vertical concatenation """
+
+    def __init__(self, *args):
+        super(vstack, self).__init__(*args)
+        self.sym = T.stacklists([arg.sym for arg in self.args])
+
     # Returns the vstack of the values.
     @AffAtom.numpy_numeric
     def numeric(self, values):

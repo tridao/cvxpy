@@ -24,6 +24,11 @@ import cvxpy.lin_ops.lin_utils as lu
 
 class transpose(AffAtom):
     """ Matrix transpose. """
+
+    def __init__(self, *args):
+        super(transpose, self).__init__(*args)
+        self.sym = args[0].sym.T
+
     # The string representation of the atom.
     def name(self):
         return "%s.T" % self.args[0]

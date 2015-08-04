@@ -24,10 +24,13 @@ from cvxpy.atoms.affine.index import index
 from cvxpy.constraints.exponential import ExpCone
 import numpy as np
 
+import theano.tensor as T
+
 class exp(Elementwise):
     """Elementwise :math:`e^{x}`.
     """
     def __init__(self, x):
+        self.sym = T.exp(x.sym)
         super(exp, self).__init__(x)
 
     # Returns the matrix e^x[i, j].

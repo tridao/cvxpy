@@ -24,6 +24,8 @@ from cvxpy.expressions.leaf import Leaf
 import cvxpy.lin_ops.lin_utils as lu
 import numpy as np
 
+import theano.tensor as T
+
 class Constant(Leaf):
     """
     A constant, either matrix or scalar.
@@ -44,6 +46,12 @@ class Constant(Leaf):
         # Set DCP attributes.
         self.init_dcp_attr()
         super(Constant, self).__init__()
+        if self.size == (1, 1):
+            self.sym = T.constant(self._value)
+        elif self.size[1] == 1:
+            self.sym = T.constant(self._value.A1)
+        else:
+            self.sym = T.constant(np.asarray(self._value))
 
     def name(self):
         return str(self.value)

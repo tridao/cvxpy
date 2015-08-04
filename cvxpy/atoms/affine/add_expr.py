@@ -27,6 +27,8 @@ import operator as op
 if sys.version_info >= (3, 0):
     from functools import reduce
 
+import theano.tensor as T
+
 class AddExpression(AffAtom):
     """The sum of any number of expressions.
     """
@@ -38,6 +40,7 @@ class AddExpression(AffAtom):
         self.args = []
         for group in arg_groups:
             self.args += self.expand_args(group)
+        self.sym = T.add(*[arg.sym for arg in self.args])
 
     def init_dcp_attr(self):
         self._dcp_attr = reduce(op.add, [arg._dcp_attr for arg in self.args])

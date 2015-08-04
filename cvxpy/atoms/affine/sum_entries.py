@@ -22,6 +22,8 @@ import cvxpy.utilities as u
 import cvxpy.lin_ops.lin_utils as lu
 import numpy as np
 
+import theano.tensor as T
+
 class sum_entries(AffAtom):
     """ Summing the entries of an expression.
 
@@ -32,6 +34,7 @@ class sum_entries(AffAtom):
     """
 
     def __init__(self, expr):
+        self.sym = T.sum(expr.sym)
         super(sum_entries, self).__init__(expr)
 
     @AffAtom.numpy_numeric

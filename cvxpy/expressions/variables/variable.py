@@ -22,6 +22,8 @@ from ... import utilities as u
 from ..leaf import Leaf
 import cvxpy.lin_ops.lin_utils as lu
 
+import theano.tensor as T
+
 class Variable(Leaf):
     """ The base variable class """
     # name - unique identifier.
@@ -38,6 +40,12 @@ class Variable(Leaf):
         self.primal_value = None
         self.init_dcp_attr()
         super(Variable, self).__init__()
+        if rows == 1 and cols == 1:
+            self.sym = T.dscalar(self._name)
+        elif cols == 1:
+            self.sym = T.dvector(self._name)
+        else:
+            self.sym = T.dmatrix(self.name())
 
     def init_dcp_attr(self):
         """Determines the curvature, sign, and shape from the arguments.

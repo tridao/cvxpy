@@ -651,6 +651,47 @@ class TestExamples(BaseTest):
         p = cp.Problem(obj)
         p.solve(solver=SCS, max_iters=1)
 
+    def test_log_sum_exp_theano(self):
+        import theano
+
+        np.random.seed(1)
+        m = 100
+        n = 20
+        A = np.random.randn(m, n)
+        b = 2 * np.random.randn(m)
+        z = np.random.randn(n)
+        x = Variable(n)
+        # print(x.sym.type)
+        # print(cvxpy.Constant(- b[0]).sym.type)
+        # print(cvxpy.Constant(A[0]).sym.type)
+        # print(cvxpy.Constant(A[0]).T.sym.type)
+        # print((A[0] * x - b[0]).sym.type)
+        # print(vstack(0, A[0] * x - b[0]).sym.type)
+        loss = sum(log_sum_exp(vstack(0, A[i] * x - b[i])) for i in range(m))
+        problem = Problem(Minimize(loss))
+
+        import time
+        start = time.time()
+        problem.solve(solver=SCS)
+        print(problem.value)
+        print("Took %.5f seconds" % (time.time() - start))
+
+        from scipy import optimize
+        start = time.time()
+        loss_function = theano.function([x.sym], loss.sym, mode='FAST_RUN')
+        # grad_function takes very long to compile
+        # grad = T.grad(loss.sym, x.sym)
+        # grad_function = theano.function([x.sym], T.grad(loss.sym, x.sym), mode='FAST_COMPILE')
+        print("Took %.5f seconds to compile" % (time.time() - start))
+        start = time.time()
+        res = optimize.minimize(loss_function, np.zeros(n),
+                                method='L-BFGS-B',
+                                # jac=grad_function,
+                                options={'disp': True})
+        print(res.fun)
+        print("Took %.5f seconds to solve" % (time.time() - start))
+
+
     # # Risk return tradeoff curve
     # def test_risk_return_tradeoff(self):
     #     from math import sqrt
