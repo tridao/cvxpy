@@ -48,7 +48,7 @@ class Constant(Leaf):
         super(Constant, self).__init__()
         if self.size == (1, 1):
             self.sym = T.constant(self._value)
-        elif self.size[1] == 1:
+        elif self.size[0] == 1 or self.size[1] == 1:
             self.sym = T.constant(self._value.A1)
         else:
             self.sym = T.constant(np.asarray(self._value))

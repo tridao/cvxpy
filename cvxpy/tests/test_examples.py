@@ -653,6 +653,7 @@ class TestExamples(BaseTest):
 
     def test_log_sum_exp_theano(self):
         import theano
+        import theano.tensor as T
 
         np.random.seed(1)
         m = 100
@@ -662,12 +663,12 @@ class TestExamples(BaseTest):
         z = np.random.randn(n)
         x = Variable(n)
         # print(x.sym.type)
-        # print(cvxpy.Constant(- b[0]).sym.type)
-        # print(cvxpy.Constant(A[0]).sym.type)
-        # print(cvxpy.Constant(A[0]).T.sym.type)
+        # print(Constant(- b[0]).sym.type)
+        # print(Constant(A[0]).sym.type)
+        # print(Constant(A[0]).T.sym.type)
         # print((A[0] * x - b[0]).sym.type)
         # print(vstack(0, A[0] * x - b[0]).sym.type)
-        loss = sum(log_sum_exp(vstack(0, A[i] * x - b[i])) for i in range(m))
+        loss = sum(log_sum_exp(vstack(0, A[i, :] * x - b[i])) for i in range(m))
         problem = Problem(Minimize(loss))
 
         import time
@@ -678,15 +679,15 @@ class TestExamples(BaseTest):
 
         from scipy import optimize
         start = time.time()
-        loss_function = theano.function([x.sym], loss.sym, mode='FAST_RUN')
-        # grad_function takes very long to compile
-        # grad = T.grad(loss.sym, x.sym)
-        # grad_function = theano.function([x.sym], T.grad(loss.sym, x.sym), mode='FAST_COMPILE')
+        loss_function = theano.function([x.sym], loss.sym, mode=theano.compile.mode.Mode(linker='c|py', optimizer='None'))
+        # grad_function takes quite long to compile
+        grad = T.grad(loss.sym, x.sym)
+        grad_function = theano.function([x.sym], grad, mode=theano.compile.mode.Mode(linker='c|py', optimizer='None'))
         print("Took %.5f seconds to compile" % (time.time() - start))
         start = time.time()
         res = optimize.minimize(loss_function, np.zeros(n),
                                 method='L-BFGS-B',
-                                # jac=grad_function,
+                                jac=grad_function,
                                 options={'disp': True})
         print(res.fun)
         print("Took %.5f seconds to solve" % (time.time() - start))
